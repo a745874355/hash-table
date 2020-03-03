@@ -41,18 +41,18 @@ class SimpleTable:public Table<TYPE>{
 	int capacity_;       //capacity of the array
 
 	void grow(){
-		Record** tmp=new Record*[capacity_+10];                          //1+1 ------------------------------>need update because this is not efficient in grow capacity.
-		for(int i=0;i<capacity_;i++){                                    //1 + capacity + 1
-			tmp[i]=records_[i];                                          //capacity
+		Record** tmp=new Record*[capacity_+10];               //1+1d
+		for(int i=0;i<capacity_;i++){                         //1 + capacity + 1
+			tmp[i]=records_[i];                               //capacity
 		}
-		for(int i=capacity_;i <capacity_+10;i++){                        //10
-			tmp[i]=nullptr;                                              //10
+		for(int i=capacity_;i <capacity_+10;i++){             //10
+			tmp[i]=nullptr;                                   //10
 		}
-		delete[] records_;                                               //1
-		records_=tmp;                                                    //1
-		capacity_+=10;                                                   //1
-	}                                                                    //26+2*capacity
-                                                                         //because capacity is consider as the n,so run time is O(n)
+		delete[] records_;                                    //1
+		records_=tmp;                                         //1
+		capacity_+=10;                                        //1
+	}                                                         //26+2*capacity
+                                                              //because capacity is consider as the n,so run time is O(n)
 public:
 	SimpleTable(int capacity);
 	SimpleTable(const SimpleTable& other);
@@ -69,150 +69,146 @@ public:
 
 template <class TYPE>
 int SimpleTable<TYPE>::numRecords() const{
-    int rc=0;                                                                   //1                  -------------------------> can change to:
-	for(int i=0;records_[i]!=nullptr;i++){                                      //1+capacity+capacity                          for(int i=0;records_[i]!=nullptr&&i<capacity;i++)"
-		rc++;                                                                   //capacity
-	}                                                                           //2+3*capacity
-	return rc;                                                                  //runtime is O(n)
-}
+    int rc=0;                                               //1             d
+	for(int i=0;records_[i]!=nullptr;i++){                  //1+capacity+capacity     
+		rc++;                                               //capacity
+	}                                                       //2+3*capacity
+	return rc;                                              //Totol is 3 + 6*capacity
+}                                                           //Thus runtime is O(n)
 
 
 
 template <class TYPE>
-SimpleTable<TYPE>::SimpleTable(int capacity): Table<TYPE>(){                    //
-	records_=new Record*[capacity];                                             //1
-	capacity_=capacity;                                                         //1
-	for(int i=0;i<capacity_;i++){                                               //1+capacity+capacity
-		records_[i]=nullptr;                                                    //capacity
-	}                                                                           //3+3*capacity
-                                                                                //runtime is O(n)
-}
+SimpleTable<TYPE>::SimpleTable(int capacity): Table<TYPE>(){
+	records_=new Record*[capacity];                         //1
+	capacity_=capacity;                                     //1
+	for(int i=0;i<capacity_;i++){                           //1+capacity+capacity
+		records_[i]=nullptr;                                //capacity
+	}                                                       //3+3*capacity
+                                                            //Totol is 6 + 6 * capacity
+}                                                           //Thus runtime is O(n)
 
 template <class TYPE>
 SimpleTable<TYPE>::SimpleTable(const SimpleTable<TYPE>& other){
-	records_=new Record*[other.capacity_];                                      //1
-	capacity_=other.capacity_;                                                  //1
-	for(int i=0;i<other.numRecords();i++){                                      //1+capacity+capacity
-		update(other.records_[i]->key_,other.records_[i]->data_);               //O(n!)
-	}                                                                           //thus overall runtime is O(n!)
-}
+	records_=new Record*[other.capacity_];                  //1
+	capacity_=other.capacity_;                              //1
+	for(int i=0;i<other.numRecords();i++){                  //1+capacity+capacity
+		update(other.records_[i]->key_,other.records_[i]->data_);  //O(n!)
+	}
+}                                                           //thus overall runtime is O(n!)
 
 template <class TYPE>
 SimpleTable<TYPE>::SimpleTable(SimpleTable<TYPE>&& other){
-	capacity_=other.capacity_;                                                  //1
-	records_=other.records_;                                                    //1
-	other.records_=nullptr;                                                     //1
-	other.capacity_=0;                                                          //1
-}                                                                               //runtime is O(1)
+	capacity_=other.capacity_;                          //1
+	records_=other.records_;                            //1
+	other.records_=nullptr;                            //1
+	other.capacity_=0;                                 //1
+}                                                      //runtime is O(1)
 
 template <class TYPE>
-void SimpleTable<TYPE>::update(const string& key, const TYPE& value){           //
-	int idx=-1;                                                                 //1
-	int size=numRecords();                                                      //1+O(n)
-	for(int i=0;i<size;i++){                                                    //1+capacity +capacity
-		if(records_[i]->key_ == key){                                           //capacity
-			idx=i;                                                              //capacity
+void SimpleTable<TYPE>::update(const string& key, const TYPE& value){
+	int idx=-1;                                         //1
+	int size=numRecords();                              //1+O(n)
+	for(int i=0;i<size;i++){                            //1+capacity +capacity
+		if(records_[i]->key_ == key){                   //capacity
+			idx=i;                                      //capacity
 		}
 	}
-	if(idx==-1){                                                                //1
-		if(size == capacity_){                                                  //1
-			grow();                                                             //O(1)
+	if(idx==-1){                                       //1
+		if(size == capacity_){                         //1
+			grow();                                    //O(1)
 		}
-		records_[size++]=new Record(key,value);                                 //1
-                                                                                //----->bubble sort is slow, could be improved by changing to Insertion sort，becuuse the datasturcture
-                                                                                //is sortted array, so do the sort insertion could be much faster than the other sort methord
-		for(int i=0;i<size-1;i++){                                              //1+(capacity-1) +(capacity-1)
-			for(int j=0;j<size-1-i;j++){                                        //1*(capacity-1)+(capacity-1)! +(capacity-1)!
-				if(records_[j]->key_ > records_[j+1]->key_){                    //(capacity-1)!
-					Record* tmp=records_[j];                                    //(capacity-1)!
-					records_[j]=records_[j+1];                                  //(capacity-1)!
-					records_[j+1]=tmp;                                          //(capacity-1)!
+		records_[size++]=new Record(key,value);       //1
+		for(int i=0;i<size-1;i++){                    //1+(capacity-1) +(capacity-1)
+			for(int j=0;j<size-1-i;j++){               //1*(capacity-1)+(capacity-1)! +(capacity-1)!
+				if(records_[j]->key_ > records_[j+1]->key_){  //(capacity-1)!
+					Record* tmp=records_[j];                  //(capacity-1)!
+					records_[j]=records_[j+1];                //(capacity-1)!
+					records_[j+1]=tmp;                        //(capacity-1)!
 				}
 			}
 		}
 	}
 	else{
 		records_[idx]->data_=value;
-	}                                                                           //because (capacity-1)! is O(n!)
-                                                                                //thus overall runtime is O(n)
+	}                                                     //because bubble sort part is O(n^2)
+                                                          //thus overall runtime is O(n^2)
 }
 
 template <class TYPE>
 bool SimpleTable<TYPE>::remove(const string& key){
-	int idx=-1;                                                                 //1
-	for(int i=0;i<numRecords();i++){                                            //1+(1+O(n))*capacity + capacity = 1 + capacity^2 + 2*capacity
-                                                                                // ------------->need fix, put numRecords() out of the for loop, then the runtime could be O(n)
-		if(records_[i]->key_ == key){                                           //capacity
-			idx=i;                                                              //capacity
+	int idx=-1;                                            //1
+	for(int i=0;i<numRecords();i++){                       //1+(1+O(n))*capacity + capacity = 1 + capacity^2 + 2*capacity
+		if(records_[i]->key_ == key){                       //capacity
+			idx=i;                                          //capacity
 		}
 	}
-	if(idx!=-1){                                                                //1
-		delete records_[idx];                                                   //1
-		int size=numRecords();                                                  //1+O(n)
-		for(int i=idx;i<size-1;i++){                                            //1+(capacity-1) +(capacity-1)
-			records_[i]=records_[i+1];                                          //(capacity-1) +(capacity-1)
+	if(idx!=-1){                                       //1
+		delete records_[idx];                          //1
+		int size=numRecords();                         //1+O(n)
+		for(int i=idx;i<size-1;i++){                   //1+(capacity-1) +(capacity-1)
+			records_[i]=records_[i+1];                 //(capacity-1) +(capacity-1)
 		}
-		records_[size-1]=nullptr;                                               //1
-		return true;                                                            //1
+		records_[size-1]=nullptr;                      //1
+		return true;                                   //1
 	}
 	else{
 		return false;
-	}                                                                           //thus overall runtime is O(n^2)
+	}                                                   //thus overall runtime is O(n^2)
 }
 
 template <class TYPE>
 bool SimpleTable<TYPE>::find(const string& key, TYPE& value){
-	int idx=-1;                                                                 //1
-	for(int i=0;i<numRecords();i++){                                            //1 + (1+O(n))*capacity + capacity = 1 + capacity^2 + 2*capacity
-                                                                                // ------------->need fix, put numRecords() out of the for loop,then the runtime could be O(n)
-		if(records_[i]->key_ == key){                                           //capacity
-			idx=i;                                                              //capacity
+	int idx=-1;                                      //1
+	for(int i=0;i<numRecords();i++){               //1 + (1+O(n))*capacity + capacity = 1 + capacity^2 + 2*capacity
+		if(records_[i]->key_ == key){               //capacity
+			idx=i;                                  //capacity
 		}
 	}
-	if(idx==-1)                                                                 //1
-		return false;                                                           //1
+	if(idx==-1)                                    //1
+		return false;                              //1
 	else{
-		value=records_[idx]->data_;                                             //1
-		return true;                                                            //1
+		value=records_[idx]->data_;               //1
+		return true;                              //1
 	}
-}                                                                               //thus overall runtime is O(n^2)
+}                                               //thus overall runtime is O(n^2)
 
 template <class TYPE>
 const SimpleTable<TYPE>& SimpleTable<TYPE>::operator=(const SimpleTable<TYPE>& other){
-	if(this!=&other){                                                           //1
-		if(records_){                                                           //1
-			int sz=numRecords();                                                //1+ O(n)
-			for(int i=0;i<sz;i++){                                              //1+capacity + capacity
-				remove(records_[0]->key_);                                      //capacity
+	if(this!=&other){                                       //1
+		if(records_){                                        //1
+			int sz=numRecords();                             //1+ O(n)
+			for(int i=0;i<sz;i++){                           //1+capacity + capacity
+				remove(records_[0]->key_);                   //capacity
 			}
-			delete [] records_;                                                 //1
+			delete [] records_;                               //1
 		}
-		records_=new Record*[other.capacity_];                                  //1
-		capacity_=other.capacity_;                                              //1
-		int size=other.numRecords();                                            //1
-		for(int i=0;i<size;i++){                                                //1+capacity + capacity
-			update(other.records_[i]->key_,other.records_[i]->data_);           //capacity
+		records_=new Record*[other.capacity_];                //1
+		capacity_=other.capacity_;                            //1
+		int size=other.numRecords();                          //1
+		for(int i=0;i<size;i++){                               //1+capacity + capacity
+			update(other.records_[i]->key_,other.records_[i]->data_);   //capacity
 		}
 
 	}
-	return *this;                                                               //1
-                                                                                //thus overall runtime is O(n)
+	return *this;                                     //1
+                                                   //thus overall runtime is O(n)
 }
 template <class TYPE>
 const SimpleTable<TYPE>& SimpleTable<TYPE>::operator=(SimpleTable<TYPE>&& other){
-	swap(records_,other.records_);                                              //1
-	swap(capacity_,other.capacity_);                                            //1
-	return *this;                                                               //1
-}                                                                               //runtime is O(1)
+	swap(records_,other.records_);               //1
+	swap(capacity_,other.capacity_);             //1
+	return *this;                                //1
+}                                                //runtime is O(1)
 template <class TYPE>
 SimpleTable<TYPE>::~SimpleTable(){
-	if(records_){                                                               //1
-		int sz=numRecords();                                                    //1 + O（n）
-		for(int i=0;i<sz;i++){                                                  //1 + capacity + capacity
-			remove(records_[0]->key_);                                          //capacity
+	if(records_){                                //1
+		int sz=numRecords();                     //1 + O（n）
+		for(int i=0;i<sz;i++){                   //1 + capacity + capacity
+			remove(records_[0]->key_);           //capacity
 		}
-		delete [] records_;                                                     //1
-	}                                                                           //thus overall runtime is O(n)
+		delete [] records_;                      //1
+	}                                            //thus overall runtime is O(n)
 }
 
 template <class TYPE>
