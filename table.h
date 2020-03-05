@@ -201,8 +201,8 @@ const SimpleTable<TYPE>& SimpleTable<TYPE>::operator=(const SimpleTable<TYPE>& o
 }
 template <class TYPE>
 const SimpleTable<TYPE>& SimpleTable<TYPE>::operator=(SimpleTable<TYPE>&& other){
-	swap(records_,other.records_);               //1
-	swap(capacity_,other.capacity_);             //1
+	std::swap(records_,other.records_);               //1
+	std::swap(capacity_,other.capacity_);             //1
 	return *this;                                //1
 }                                                //runtime is O(1)
 template <class TYPE>
@@ -300,16 +300,15 @@ private:
 };
 template <class TYPE>
 void ChainingTable<TYPE>::expand(){
-	//TODO: reassign indexes after expand.
 	auto prevCap = capacity_;
 	capacity_ += capacity_;
 	currentLoadFactor_ = 0; //reset currentLoadFactor
 	size_ = 0;
 	numRecords_ = 0;
-	#ifdef _DEBUG
+#ifdef _DEBUG
 	cout << "expanding" << endl;
 	cout << "currentLoadFactor: " << currentLoadFactor_ << endl;
-	#endif
+#endif
 	auto n = records_; //old records_;
 	records_ = new DList<Record>* [capacity_];
 	for(size_t i = 0; i < prevCap; i++){
@@ -321,10 +320,10 @@ void ChainingTable<TYPE>::expand(){
 		}
 	}
 	delete[] n;
-	#ifdef _DEBUG
+#ifdef _DEBUG
 	cout << "expanded" << endl;
 	cout << "currentLoadFactor: " << currentLoadFactor_ << endl;
-	#endif
+#endif
 }
 
 template <class TYPE>
@@ -345,8 +344,6 @@ ChainingTable<TYPE>::ChainingTable(ChainingTable<TYPE>&& other){
 
 template <class TYPE>
 void ChainingTable<TYPE>::update(const string& key, const TYPE& value){
-	//TODO
-	//Use hash function to decide the index
 	std::hash<std::string> hash;
 	size_t idx = hash(key) % capacity_;
 	if(!records_[idx]){//the key does not exist
@@ -360,9 +357,9 @@ void ChainingTable<TYPE>::update(const string& key, const TYPE& value){
 	}else{ //the key may exist
 		for(auto& record : *records_[idx]){//iterate the list
 			if(record.key == key){//the key exist
-				#ifdef _DEBUG
+#ifdef _DEBUG
 				cout << "updating k/v" << endl;
-				#endif
+#endif
 				record.value = value;
 				return;
 			}
@@ -409,7 +406,7 @@ bool ChainingTable<TYPE>::remove(const string& key){
 	size_t idx = hash(key) % capacity_;
 	for(auto itr = records_[idx]->begin(); itr != records_[idx]->end(); itr++){
 		if((*itr).key == key) {
-			//itr.remove(); //TODO: itr.remove() needs to be implemented
+			//itr.remove(); //TODO: DList<T>::iterator::remove() needs to be implemented
 			return true;
 		}
 	}
