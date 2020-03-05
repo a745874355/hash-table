@@ -9,6 +9,11 @@
 #include <utility>
 #include <functional>
 #include "mylist.h"
+#ifdef _DEBUG
+#include <iostream>
+using namespace std;
+#endif //_DEBUG
+
 //Table is the abstract base class, describes the functianalities of the Table class
 using std::string;
 template <class TYPE>
@@ -223,13 +228,96 @@ public:
 	virtual const ChainingTable& operator=(const ChainingTable& other);
 	virtual const ChainingTable& operator=(ChainingTable&& other);
 	virtual ~ChainingTable();
-	virtual bool isEmpty() const {}
-	virtual int numRecords() const {}
+	virtual bool isEmpty() const {
+		return size_==0;
+	}
+	virtual int numRecords() const {
+		return size_;
+	}
 
+#ifdef _DEBUG
+	void print(){
+		cout << "Current list:" << endl
+			<< "Size: " << size_ << endl
+			<< "Capacity: " << capacity_ << endl
+			<< "currentLoadFactor: " << currentLoadFactor_ << endl
+			<< "maxLoadFactor: " << maxLoadFactor_ << endl;
+		for (size_t i = 0; i < capacity_; i++)
+		{
+			if (i >= size_)
+			{
+				cout << i+1 << "EMPTY" << endl;
+			}
+			else{
+				cout << i+1 << ". " << records_[i].value;
+				for(auto& key_ : *records_[i].keys){
+					cout << "->" << key_;
+				}
+				cout << endl;
+			}
+		}
+		
+	}
+#endif //_DEBUG
+
+
+
+private:
+	struct Record
+	{
+		TYPE value = {}; //refering value
+		DList<string>* keys = nullptr; //new list storing key
+		~Record(){
+			delete keys;
+		}
+		Record(){};
+		Record(const string& key, const TYPE& value){
+			this->value = value;
+			this->keys = new DList<string>;
+			this->keys->push_back(key);
+		}
+		void addKey(const string& key){
+			if(this->keys != nullptr)
+				keys->push_back(key);
+		}
+		Record(Record&& rhs){
+			this->value = rhs.value;
+			this->keys = rhs.keys;
+			rhs.value = {};
+			rhs.keys = nullptr;
+		}
+		Record& operator=(Record&& rhs){
+			delete keys;
+			this->value = rhs.value;
+			this->keys = rhs.keys;
+			rhs.value = {};
+			rhs.keys = nullptr;
+		}
+	};
+	Record* records_ = nullptr;
+	size_t size_ = 0;
+	size_t capacity_ = 0;
+	double maxLoadFactor_ = 0;
+	double currentLoadFactor_ = 0;
+	void expand();
 };
 template <class TYPE>
-ChainingTable<TYPE>::ChainingTable(int capacity,double maxLoadFactor): Table<TYPE>(){
+void ChainingTable<TYPE>::expand(){
+	//TODO: reassign indexes after expand.
+	auto n = new Record[capacity_+capacity_];
+	for (size_t i = 0; i < size_; i++)
+	{
+		n[i] = std::move(records_[i]);
+	}
+	delete[] records_;
+	records_ = n;
+}
 
+template <class TYPE>
+ChainingTable<TYPE>::ChainingTable(int capacity,double maxLoadFactor): Table<TYPE>(){
+	capacity_ = capacity;
+	maxLoadFactor_ = maxLoadFactor;
+	records_ = new Record[capacity_];
 }
 
 template <class TYPE>
@@ -240,19 +328,84 @@ template <class TYPE>
 ChainingTable<TYPE>::ChainingTable(ChainingTable<TYPE>&& other){
 
 }
+
 template <class TYPE>
 void ChainingTable<TYPE>::update(const string& key, const TYPE& value){
-
+	//TODO
+	//Use hash function to decide the index
+	for (size_t i = 0; i < size_; i++)
+	{
+		if (records_[i].value == value)
+		{
+			records_[i].addKey(key);
+#ifdef _DEBUG
+			cout << "Updated existing: at " << i+1 << endl
+				<< "value: " << value << endl
+				<< "Keys:";
+			for(auto& key__ : *records_[i].keys){
+				cout << key__ << " ";
+			}
+			cout << endl;
+#endif //_DEBUG
+			return;
+		}
+	}
+	if(currentLoadFactor_ >= maxLoadFactor_){
+		this->expand();
+	}
+	records_[size_] = Record(key, value);
+	size_++;
+	currentLoadFactor_ = (double)size_/(double)capacity_;
+#ifdef _DEBUG
+	cout << "Created new record." << endl;
+	print();
+#endif //_DEBUG
 }
 
 template <class TYPE>
 bool ChainingTable<TYPE>::remove(const string& key){
-	return true;
+	//TODO: The value are pointed by multiple keys.
+	//e.g. value: 3 keys: a b c
+	//		delete c
+	//unknown, need to confirm?????expected result: value: 3 keys: a b
+	for (size_t i = 0; i < size_; i++)
+	{
+		for(auto& key_ : *records_[i].keys){
+			if(key == key_){
+				records_[i] = std::move(records_[size_]);
+				size_--;
+#ifdef _DEBUG
+				cout << "Remove done" << endl;
+				print();
+#endif //_DEBUG
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
 template <class TYPE>
 bool ChainingTable<TYPE>::find(const string& key, TYPE& value){
-	return true;
+	for (size_t i = 0; i < size_; i++)
+	{
+		for(auto& key_ : *records_[i].keys){
+			if(key == key_){
+				value = records_[i].value;
+#ifdef _DEBUG
+				cout << "Record found at :" << i+1 << endl 
+					<< "value: " << value << endl
+					<< "Keys:";
+				for(auto& key__ : *records_[i].keys){
+					cout << key__ << " ";
+				}
+				cout << endl;
+#endif // _DEBUG
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
 template <class TYPE>
@@ -267,7 +420,25 @@ const ChainingTable<TYPE>& ChainingTable<TYPE>::operator=(ChainingTable<TYPE>&& 
 }
 template <class TYPE>
 ChainingTable<TYPE>::~ChainingTable(){
-
+	delete[] records_;
 }
 
 
+#ifdef _DEBUG
+//Tester
+int main(){
+	ChainingTable<int> table(10, 0.7);
+	cout << "Table created." << endl;
+	table.print();
+
+	table.update("123", 1);
+	table.update("456", 1);
+	table.update("789", 1);
+	table.update("888", 3);
+	table.update("999", 5);
+	table.print();
+
+
+	return 0;
+}
+#endif //_DEBUG
