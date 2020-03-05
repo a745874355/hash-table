@@ -278,6 +278,12 @@ private:
 		Record& operator=(const Record& rhs){
 			this->value = rhs.value;
 			this->key = rhs.key;
+#ifdef _DEBUG
+			cout << "copy assignment operaotr called" << endl;
+#endif
+
+
+			return *this;
 		}
 		Record& operator=(Record&& rhs){
 			/*
@@ -288,6 +294,7 @@ private:
 			rhs.key = {};
 			return *this;
 			*/
+			return*this;
 		}
 	};
 	DList<Record>** records_ = nullptr;
