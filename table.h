@@ -11,7 +11,10 @@
 #include "mylist.h"
 #ifdef _DEBUG
 #include <iostream>
-using namespace std;
+//using namespace std;
+using std::cout;
+using std::endl;
+using std::operator<<;
 #endif //_DEBUG
 
 //Table is the abstract base class, describes the functianalities of the Table class
@@ -353,11 +356,11 @@ ChainingTable<TYPE>::ChainingTable(int capacity,double maxLoadFactor): Table<TYP
 
 template <class TYPE>
 ChainingTable<TYPE>::ChainingTable(const ChainingTable<TYPE>& other){
-
+//TODO: copy constructor
 }
 template <class TYPE>
 ChainingTable<TYPE>::ChainingTable(ChainingTable<TYPE>&& other){
-
+//TODO: move constructor
 }
 
 template <class TYPE>
@@ -387,35 +390,6 @@ void ChainingTable<TYPE>::update(const string& key, const TYPE& value){
 		numRecords_++;
 		return;
 	}
-/*
-	for (size_t i = 0; i < size_; i++)
-	{
-		if (records_[i].value == value)
-		{
-			records_[i].addKey(key);
-#ifdef _DEBUG
-			cout << "Updated existing: at " << i+1 << endl
-				<< "value: " << value << endl
-				<< "Keys:";
-			for(auto& key__ : *records_[i].keys){
-				cout << key__ << " ";
-			}
-			cout << endl;
-#endif //_DEBUG
-			return;
-		}
-	}
-	if(currentLoadFactor_ >= maxLoadFactor_){
-		this->expand();
-	}
-	records_[size_] = Record(key, value);
-	size_++;
-	currentLoadFactor_ = (double)size_/(double)capacity_;
-#ifdef _DEBUG
-	cout << "Created new record." << endl;
-	print();
-#endif //_DEBUG
-*/
 }
 
 template <class TYPE>
@@ -436,23 +410,6 @@ bool ChainingTable<TYPE>::remove(const string& key){
 		}
 	}
 	return false;
-	/*
-	for (size_t i = 0; i < size_; i++)
-	{
-		for(auto& key_ : *records_[i].keys){
-			if(key == key_){
-				records_[i] = std::move(records_[size_]);
-				size_--;
-#ifdef _DEBUG
-				cout << "Remove done" << endl;
-				print();
-#endif //_DEBUG
-				return true;
-			}
-		}
-	}
-	return false;
-	*/
 }
 
 template <class TYPE>
@@ -466,42 +423,23 @@ bool ChainingTable<TYPE>::find(const string& key, TYPE& value){
 		}	
 	}
 	return false;
-
-	/*
-	for (size_t i = 0; i < size_; i++)
-	{
-		for(auto& key_ : *records_[i].keys){
-			if(key == key_){
-				value = records_[i].value;
-#ifdef _DEBUG
-				cout << "Record found at :" << i+1 << endl 
-					<< "value: " << value << endl
-					<< "Keys:";
-				for(auto& key__ : *records_[i].keys){
-					cout << key__ << " ";
-				}
-				cout << endl;
-#endif // _DEBUG
-				return true;
-			}
-		}
-	}
-	return false;
-	*/
 }
 
 template <class TYPE>
 const ChainingTable<TYPE>& ChainingTable<TYPE>::operator=(const ChainingTable<TYPE>& other){
+	//TODO: Copy assignment operator
 	return *this;
 
 }
 template <class TYPE>
 const ChainingTable<TYPE>& ChainingTable<TYPE>::operator=(ChainingTable<TYPE>&& other){
+	//TODO: Move assignment operator
 	return *this;
 
 }
 template <class TYPE>
 ChainingTable<TYPE>::~ChainingTable(){
+	//TODO: Destructor
 	//delete[] records_;
 }
 

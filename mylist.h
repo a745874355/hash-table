@@ -160,7 +160,7 @@ public:
             front_ = toDelete->next_;
             if(front_ != nullptr)
                 front_->prev_ = nullptr;
-            else
+            else//case: the list only contains one node
                 back_ = nullptr;
             delete toDelete;
             return begin();
