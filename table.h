@@ -232,10 +232,10 @@ public:
 	virtual const ChainingTable& operator=(ChainingTable&& other);
 	virtual ~ChainingTable();
 	virtual bool isEmpty() const {
-		return size_==0;
+		return numRecords_==0;
 	}
 	virtual int numRecords() const {
-		return size_;
+		return numRecords_;
 	}
 
 #ifdef _DEBUG
@@ -243,6 +243,7 @@ public:
 		cout << endl << "**********************************" << endl;
 		cout << "Current list:" << endl
 			<< "Size: " << size_ << endl
+			<< "Records: " << numRecords_ << endl
 			<< "Capacity: " << capacity_ << endl
 			<< "currentLoadFactor: " << currentLoadFactor_ << endl
 			<< "maxLoadFactor: " << maxLoadFactor_ << endl;
@@ -318,7 +319,6 @@ void ChainingTable<TYPE>::expand(){
 	currentLoadFactor_ = 0; //reset currentLoadFactor
 	size_ = 0;
 	numRecords_ = 0;
-
 	auto n = records_; //old records_;
 	records_ = new DList<Record>* [capacity_];
 	for (size_t i = 0; i < capacity_; i++)
@@ -373,7 +373,7 @@ void ChainingTable<TYPE>::update(const string& key, const TYPE& value){
 		records_[idx]->push_back(Record(key, value));
 		size_++;
 		numRecords_++;
-		currentLoadFactor_ = (double)size_/(double)capacity_;
+		currentLoadFactor_ = (double)numRecords_/(double)capacity_;
 		return;
 	}else{ //the key may exist
 		for(auto& record : *records_[idx]){//iterate the list
@@ -388,6 +388,7 @@ void ChainingTable<TYPE>::update(const string& key, const TYPE& value){
 		//the key does not exist
 		records_[idx]->push_back(Record(key, value));
 		numRecords_++;
+		currentLoadFactor_ = (double)numRecords_/(double)capacity_;
 		return;
 	}
 }
@@ -405,7 +406,9 @@ bool ChainingTable<TYPE>::remove(const string& key){
 			if(records_[idx]->isEmpty()){
 				delete records_[idx];
 				records_[idx] = nullptr;
+				size_--;
 			}				
+			numRecords_--;
 			return true;
 		}
 	}
