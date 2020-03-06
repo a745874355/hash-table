@@ -132,6 +132,18 @@ public:
         const T& operator*()const{
             return this->curr_->data_;
         }
+        //add remove function 
+        void remove(){
+            iterator cur(*this);
+            --(*this);
+            iterator pre(*this);
+            ((*this)++)++;
+            iterator next(*this);
+            pre.curr_->next_ = next.curr_;
+            next.curr_->prev_ = pre.curr_;
+            delete cur.curr_;
+        }
+
     };
     
     DList::const_iterator cbegin() const{
@@ -157,6 +169,7 @@ public:
         else
             return DList::iterator(back_->next_,this);
     }
+    
 };
 
 //template <typename T>

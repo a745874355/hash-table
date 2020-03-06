@@ -262,6 +262,7 @@ public:
 private:
 	struct Record
 	{
+		friend class ChainingTable;
 		TYPE value = {}; 
 		string key = {}; 
 		Record(){};
@@ -278,11 +279,6 @@ private:
 		Record& operator=(const Record& rhs){
 			this->value = rhs.value;
 			this->key = rhs.key;
-#ifdef _DEBUG
-			cout << "copy assignment operaotr called" << endl;
-#endif
-
-
 			return *this;
 		}
 		Record& operator=(Record&& rhs){
@@ -324,8 +320,9 @@ void ChainingTable<TYPE>::expand(){
 	}
 	
 	for(size_t i = 0; i < prevCap; i++){
+		//if Dlink is not empty, copy whole link, 
 		if(n[i]){
-			for(auto& record : *n[i]){
+			for(auto& record : *n[i]){                
 				update(record.key, record.value);
 			}
 			delete n[i];
@@ -422,8 +419,11 @@ bool ChainingTable<TYPE>::remove(const string& key){
 	std::hash<std::string> hash;
 	size_t idx = hash(key) % capacity_;
 	for(auto itr = records_[idx]->begin(); itr != records_[idx]->end(); itr++){
-		if((*itr).key == key) {
-			//itr.remove(); //TODO: DList<T>::iterator::remove() needs to be implemented
+#ifdef _DEBUG
+			cout << "Do remove idx of " << idx <<" (*itr).key " << (*itr).key << " key "  << key << endl;
+#endif	
+		if((*itr).key == key) {					
+			 itr.remove(); //TODO: DList<T>::iterator::remove() needs to be implemented				
 			return true;
 		}
 	}

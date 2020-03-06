@@ -31,6 +31,9 @@ int main(){
 	cout << endl;
 	table.update("k999", 9);
 	table.print();
+	cout << "Here should do remove." << endl;
+	table.remove("K999");
+	table.print();
 	cout << endl;
 #endif
 	return 0;
