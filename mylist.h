@@ -174,8 +174,9 @@ public:
         }else{
             toDelete->prev_->next_ = toDelete->next_;
             toDelete->next_->prev_ = toDelete->prev_;
+            auto toReturn = DList::iterator(toDelete->next_, this);
             delete toDelete;
-            return DList::iterator(toDelete->next_, this);
+            return toReturn;
         }
     }
 
