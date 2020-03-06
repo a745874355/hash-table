@@ -155,7 +155,7 @@ public:
         if(itr.myList_ != this) throw "Not in this List";
         if(itr.curr_ == nullptr) return end();
         auto toDelete = itr.curr_;
-        if (toDelete == front_)
+        if (toDelete == front_ && front_ != back_)
         {
             front_ = toDelete->next_;
             if(front_ != nullptr)
@@ -164,20 +164,28 @@ public:
                 back_ = nullptr;
             delete toDelete;
             return begin();
-        }else if(toDelete == back_){
-            back_ = toDelete->prev_;
-            back_->next_ = nullptr;
-            auto n = end();
-            n--;
-            delete toDelete;
-            return n;
+        }else if(toDelete == back_){            //change here ****
+            //the list more then one node   
+            if(toDelete != front_) {                  
+                back_ = toDelete->prev_;
+                back_->next_ = nullptr; 
+                delete toDelete;
+                return end();
+            }else{ //case: the list only contains one node
+                delete toDelete;
+                auto toReturn = DList::iterator(nullptr, this);
+                return toReturn;
+            }
+                
         }else{
             toDelete->prev_->next_ = toDelete->next_;
             toDelete->next_->prev_ = toDelete->prev_;
             auto toReturn = DList::iterator(toDelete->next_, this);
             delete toDelete;
             return toReturn;
+             
         }
+
     }
 
     DList::const_iterator cbegin() const{
