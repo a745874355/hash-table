@@ -245,7 +245,7 @@ public:
 			<< "maxLoadFactor: " << maxLoadFactor_ << endl;
 		for (size_t i = 0; i < capacity_; i++)
 		{
-			cout << i+1 << ". ";
+			cout << i << ". ";
 			if(!records_[i]){
 				cout <<"Empty" << endl;
 				continue;
@@ -427,7 +427,11 @@ bool ChainingTable<TYPE>::remove(const string& key){
 #ifdef _DEBUG
 			cout << "Do remove idx of " << idx <<" (*itr).key " << (*itr).key << " key "  << key << endl;
 #endif				
-			itr.remove(); //TODO: DList<T>::iterator::remove() needs to be implemented				
+			records_[idx]->remove(itr);
+			if(records_[idx]->isEmpty()){
+				delete records_[idx];
+				records_[idx] = nullptr;
+			}				
 			return true;
 		}
 	}

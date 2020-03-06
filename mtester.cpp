@@ -21,8 +21,6 @@ int main(){
 	table.update("k990", 5);
 	table.update("k989", 5);
 	table.update("k988", 5);
-
-
 #ifdef _DEBUG
 	//table.print();
 	cout << endl;
@@ -30,14 +28,14 @@ int main(){
     //table.print();
 	cout << endl;
 	table.update("k999", 9);
-	//table.print();
+	table.print();
 	cout << "Here should do remove." << endl;
 	if(table.remove("k999")){
 		cout << "Removal of k999 successfully completed" << endl; 
 	}else{
 		cout << "Removal of k999 failed" << endl; 
 	}
-	//table.print();
+	table.print();
 	cout << endl;
 #endif
 	return 0;

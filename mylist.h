@@ -11,7 +11,6 @@
 
 template <typename T>
 class DList{
-    
     struct Node{
         T data_;
         Node* next_;
@@ -36,6 +35,7 @@ public:
     void pop_back();
     void print() const;
     void reversePrint() const;
+    bool isEmpty() const {return front_ == nullptr && back_ == nullptr;}
     ~DList();
     
     class const_iterator{
@@ -103,8 +103,8 @@ public:
     class iterator:public const_iterator{
         template <typename> friend class DList;
     protected:
-        iterator(Node* curr,DList* theList):const_iterator(curr,theList){}
     public:
+        iterator(Node* curr,DList* theList):const_iterator(curr,theList){}
         iterator():const_iterator(){}
         iterator operator++(){
             if (this->curr_ != this->myList_->back_->next_)
@@ -132,20 +132,53 @@ public:
         const T& operator*()const{
             return this->curr_->data_;
         }
-        //add remove function 
-        void remove(){
-            iterator cur(*this);
-            --(*this);
-            iterator pre(*this);
-            ((*this)++)++;
-            iterator next(*this);
-            pre.curr_->next_ = next.curr_;
-            next.curr_->prev_ = pre.curr_;
-            delete cur.curr_;
-        }
-
     };
-    
+
+    //This function deletes the node that itr iterator points to.
+    //return the iterator (and set this iterator) that points to the node that after the deleleted node.
+    //e.g. case 1:
+    //before remove
+    //a <-> b <-> c <-> d <-> e
+    //      ^
+    //
+    //after remove
+    //a <-> c <-> d <-> e
+    //      ^
+    //case 2:
+    //before remove
+    //a <-> b <-> c
+    //            ^
+    //after remove
+    //a <-> b
+    //      ^
+    DList::iterator remove(DList::iterator itr){
+        if(itr.myList_ != this) throw "Not in this List";
+        if(itr.curr_ == nullptr) return end();
+        auto toDelete = itr.curr_;
+        if (toDelete == front_)
+        {
+            front_ = toDelete->next_;
+            if(front_ != nullptr)
+                front_->prev_ = nullptr;
+            else
+                back_ = nullptr;
+            delete toDelete;
+            return begin();
+        }else if(toDelete == back_){
+            back_ = toDelete->prev_;
+            back_->next_ = nullptr;
+            auto n = end();
+            n--;
+            delete toDelete;
+            return n;
+        }else{
+            toDelete->prev_->next_ = toDelete->next_;
+            toDelete->next_->prev_ = toDelete->prev_;
+            delete toDelete;
+            return DList::iterator(toDelete->next_, this);
+        }
+    }
+
     DList::const_iterator cbegin() const{
         if(front_ != nullptr)
             return DList::const_iterator(front_, this);
