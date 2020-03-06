@@ -356,11 +356,28 @@ ChainingTable<TYPE>::ChainingTable(int capacity,double maxLoadFactor): Table<TYP
 
 template <class TYPE>
 ChainingTable<TYPE>::ChainingTable(const ChainingTable<TYPE>& other){
-//TODO: copy constructor
+	*this = ChainingTable(other.capacity_, other.maxLoadFactor_);
+	for (size_t i = 0; i < other.capacity_; i++)
+	{
+		if(other.records_ && other.records_[i]){
+			for(auto& record : *(other.records_[i])){
+				update(record.key, record.value);
+			}
+		}
+	}
 }
 template <class TYPE>
 ChainingTable<TYPE>::ChainingTable(ChainingTable<TYPE>&& other){
-//TODO: move constructor
+	this->capacity_ = other.capacity_;
+	this->records_ = other.records_;
+	this->numRecords_ = other.numRecords_;
+	this->size_ = other.size_;
+	this->maxLoadFactor_ = other.maxLoadFactor_;
+	this->currentLoadFactor_ = other.currentLoadFactor_;
+	other.records_ = nullptr;
+	other.numRecords_ = 0;
+	other.size_ = 0;
+	other.currentLoadFactor_ = 0;
 }
 
 template <class TYPE>
@@ -430,20 +447,50 @@ bool ChainingTable<TYPE>::find(const string& key, TYPE& value){
 
 template <class TYPE>
 const ChainingTable<TYPE>& ChainingTable<TYPE>::operator=(const ChainingTable<TYPE>& other){
-	//TODO: Copy assignment operator
+	if(records_){
+		for (size_t i = 0; i < capacity_; i++)
+		{
+			delete records_[i];
+		}
+		delete[] records_;
+		records_ = nullptr;
+	}
+	*this = ChainingTable(other);
 	return *this;
 
 }
 template <class TYPE>
 const ChainingTable<TYPE>& ChainingTable<TYPE>::operator=(ChainingTable<TYPE>&& other){
-	//TODO: Move assignment operator
+	if(records_){
+		for (size_t i = 0; i < capacity_; i++)
+		{
+			delete records_[i];
+		}
+		delete[] records_;
+	}
+	this->capacity_ = other.capacity_;
+	this->records_ = other.records_;
+	this->numRecords_ = other.numRecords_;
+	this->size_ = other.size_;
+	this->maxLoadFactor_ = other.maxLoadFactor_;
+	this->currentLoadFactor_ = other.currentLoadFactor_;
+	other.records_ = nullptr;
+	other.numRecords_ = 0;
+	other.size_ = 0;
+	other.currentLoadFactor_ = 0;
 	return *this;
 
 }
 template <class TYPE>
 ChainingTable<TYPE>::~ChainingTable(){
-	//TODO: Destructor
-	//delete[] records_;
+	if(records_){
+		for (size_t i = 0; i < capacity_; i++)
+		{
+			delete records_[i];
+		}
+		delete[] records_;
+	}
+	
 }
 
 

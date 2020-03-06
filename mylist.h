@@ -155,7 +155,7 @@ public:
         if(itr.myList_ != this) throw "Not in this List";
         if(itr.curr_ == nullptr) return end();
         auto toDelete = itr.curr_;
-        if (toDelete == front_ && front_ != back_)
+        if (toDelete == front_)
         {
             front_ = toDelete->next_;
             if(front_ != nullptr)
