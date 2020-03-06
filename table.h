@@ -237,6 +237,7 @@ public:
 
 #ifdef _DEBUG
 	void print(){
+		cout << endl << "**********************************" << endl;
 		cout << "Current list:" << endl
 			<< "Size: " << size_ << endl
 			<< "Capacity: " << capacity_ << endl
@@ -254,6 +255,8 @@ public:
 			}
 			cout << "nil" << endl;
 		}
+		cout << "**********************************" <<endl << endl;
+
 	}
 #endif //_DEBUG
 
@@ -303,15 +306,16 @@ private:
 };
 template <class TYPE>
 void ChainingTable<TYPE>::expand(){
+#ifdef _DEBUG
+	cout << "expanding" << endl;
+	cout << "currentLoadFactor: " << currentLoadFactor_ << endl;
+#endif
 	auto prevCap = capacity_;
 	capacity_ += capacity_;
 	currentLoadFactor_ = 0; //reset currentLoadFactor
 	size_ = 0;
 	numRecords_ = 0;
-#ifdef _DEBUG
-	cout << "expanding" << endl;
-	cout << "currentLoadFactor: " << currentLoadFactor_ << endl;
-#endif
+
 	auto n = records_; //old records_;
 	records_ = new DList<Record>* [capacity_];
 	for (size_t i = 0; i < capacity_; i++)
@@ -372,7 +376,7 @@ void ChainingTable<TYPE>::update(const string& key, const TYPE& value){
 		for(auto& record : *records_[idx]){//iterate the list
 			if(record.key == key){//the key exist
 #ifdef _DEBUG
-				cout << "updating k/v" << endl;
+				cout << "updating k/v at " << idx << " of key " << record.key << " from " << record.value << " to " << value << endl;
 #endif
 				record.value = value;
 				return;
@@ -419,11 +423,11 @@ bool ChainingTable<TYPE>::remove(const string& key){
 	std::hash<std::string> hash;
 	size_t idx = hash(key) % capacity_;
 	for(auto itr = records_[idx]->begin(); itr != records_[idx]->end(); itr++){
+		if((*itr).key == key) {		
 #ifdef _DEBUG
 			cout << "Do remove idx of " << idx <<" (*itr).key " << (*itr).key << " key "  << key << endl;
-#endif	
-		if((*itr).key == key) {					
-			 itr.remove(); //TODO: DList<T>::iterator::remove() needs to be implemented				
+#endif				
+			itr.remove(); //TODO: DList<T>::iterator::remove() needs to be implemented				
 			return true;
 		}
 	}
