@@ -318,6 +318,11 @@ void ChainingTable<TYPE>::expand(){
 #endif
 	auto n = records_; //old records_;
 	records_ = new DList<Record>* [capacity_];
+	for (size_t i = 0; i < capacity_; i++)
+	{
+		records_[i] = nullptr;
+	}
+	
 	for(size_t i = 0; i < prevCap; i++){
 		if(n[i]){
 			for(auto& record : *n[i]){
@@ -338,6 +343,11 @@ ChainingTable<TYPE>::ChainingTable(int capacity,double maxLoadFactor): Table<TYP
 	capacity_ = capacity;
 	maxLoadFactor_ = maxLoadFactor;
 	records_ = new DList<Record>*[capacity_];
+	for (size_t i = 0; i < capacity_; i++)
+	{
+		records_[i] = 0;
+	}
+	
 }
 
 template <class TYPE>
