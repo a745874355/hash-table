@@ -407,10 +407,10 @@ ChainingTable<TYPE>::ChainingTable(ChainingTable<TYPE>&& other){
 template <class TYPE>
 void ChainingTable<TYPE>::update(const string& key, const TYPE& value){
 	if(capacity_ <= 0) throw string("Table capacity invalid!! Table may be moved");
+	if(currentLoadFactor_ >= maxLoadFactor_) expand();
 	std::hash<std::string> hash;
 	size_t idx = hash(key) % capacity_;
 	if(!records_[idx]){//the key does not exist
-		if(currentLoadFactor_ >= maxLoadFactor_) expand();
 		records_[idx] = new DList<Record>();
 		records_[idx]->push_back(Record(key, value));
 		/*size_++;*/
@@ -519,7 +519,6 @@ ChainingTable<TYPE>::~ChainingTable(){
 		}
 		delete[] records_;
 	}
-	
 }
 
 
