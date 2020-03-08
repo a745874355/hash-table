@@ -14,7 +14,9 @@
                 "-std=c++0x",
                 "-g",
                 // Do not generate summary otherwise it leads to duplicate errors in Problems panel
-                "${workspaceFolder}/mtester.cpp",
+                "${workspaceFolder}/timer.cpp",
+                "${workspaceFolder}/a2tester.cpp",
+
             ],
             "group": "build",
             "presentation": {

@@ -253,6 +253,9 @@ public:
 	virtual int numRecords() const {
 		return numRecords_;
 	}
+	int capacity() const{
+		return capacity_;
+	}
 
 #ifdef _DEBUG
 	void print(){
@@ -407,7 +410,6 @@ ChainingTable<TYPE>::ChainingTable(ChainingTable<TYPE>&& other){
 template <class TYPE>
 void ChainingTable<TYPE>::update(const string& key, const TYPE& value){
 	if(capacity_ <= 0) throw string("Table capacity invalid!! Table may be moved");
-	if(currentLoadFactor_ >= maxLoadFactor_) expand();
 	std::hash<std::string> hash;
 	size_t idx = hash(key) % capacity_;
 	if(!records_[idx]){//the key does not exist
@@ -416,6 +418,7 @@ void ChainingTable<TYPE>::update(const string& key, const TYPE& value){
 		/*size_++;*/
 		numRecords_++;
 		currentLoadFactor_ = (double)numRecords_/(double)capacity_;
+		if(currentLoadFactor_ > maxLoadFactor_) expand();
 		return;
 	}else{ //the key may exist
 		for(auto& record : *records_[idx]){//iterate the list
@@ -431,6 +434,7 @@ void ChainingTable<TYPE>::update(const string& key, const TYPE& value){
 		records_[idx]->push_back(Record(key, value));
 		numRecords_++;
 		currentLoadFactor_ = (double)numRecords_/(double)capacity_;
+		if(currentLoadFactor_ > maxLoadFactor_) expand();
 		return;
 	}
 }
@@ -465,6 +469,7 @@ bool ChainingTable<TYPE>::find(const string& key, TYPE& value){
 	if(capacity_ <= 0) return false;
 	std::hash<std::string> hash;
 	size_t idx = hash(key) % capacity_;
+	if(!records_[idx]) return false;
 	for(auto& record: *records_[idx]){
 		if(record.key == key){
 			value = record.value;
