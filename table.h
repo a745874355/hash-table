@@ -225,7 +225,7 @@ SimpleTable<TYPE>::~SimpleTable(){
 //        ↓                        ↓      
 //                  _____________      _____________
 //    records_[0] ：|data_:{v, k}|     |data_:{v, k}|           
-//        front_ ——→|next_ • ————|————→|next_ • ————|
+//        front_ ——→|next_ • ————|————→|next_ •     |
 //        back_     |prev_ •     |←————|prev_ •     |    
 //          |        ￣￣￣￣￣￣￣      ￣￣ ↑￣￣￣￣
 //          ￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣
