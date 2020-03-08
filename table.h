@@ -218,7 +218,23 @@ SimpleTable<TYPE>::~SimpleTable(){
 		delete [] records_;                      //1
 	}                                            //thus overall runtime is O(n)
 }
-
+// chanining table data stucture
+// *******************************************************************************************  
+//    Dlink<Record>**
+//     records_               Dlink<Record>
+//        ↓                        ↓      
+//                  _____________      _____________
+//    records_[0] ：|data_:{v, k}|     |data_:{v, k}|           
+//        front_ ——→|next_ • ————|————→|next_ • ————|
+//        back_     |prev_ •     |←————|prev_ •     |    
+//          |        ￣￣￣￣￣￣￣      ￣￣ ↑￣￣￣￣
+//          ￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣
+//    records_[1]:   ...
+//    records_[2]:   ...
+//       ...  
+//************************************************************************************************
+// for each record{v,k), it will stored in the records_[idx] where idx = hashfunction(k)%capacity;
+//************************************************************************************************
 template <class TYPE>
 class ChainingTable:public Table<TYPE>{
 public:
@@ -242,7 +258,7 @@ public:
 	void print(){
 		cout << endl << "**********************************" << endl;
 		cout << "Current list:" << endl
-			<< "Size: " << size_ << endl
+			/*<< "Size: " << size_ << endl*/
 			<< "Records: " << numRecords_ << endl
 			<< "Capacity: " << capacity_ << endl
 			<< "currentLoadFactor: " << currentLoadFactor_ << endl
@@ -269,7 +285,7 @@ public:
 private:
 	struct Record
 	{
-		friend class ChainingTable;
+	//	friend class ChainingTable;
 		TYPE value = {}; 
 		string key = {}; 
 		Record(){};
@@ -301,7 +317,7 @@ private:
 		}
 	};
 	DList<Record>** records_ = nullptr;
-	size_t size_ = 0;
+	/*size_t size_ = 0;*/
 	size_t capacity_ = 0;
 	size_t numRecords_ = 0;
 	double maxLoadFactor_ = 0;
@@ -317,7 +333,7 @@ void ChainingTable<TYPE>::expand(){
 	auto prevCap = capacity_;
 	capacity_ += capacity_;
 	currentLoadFactor_ = 0; //reset currentLoadFactor
-	size_ = 0;
+	/*size_ = 0;*/
 	numRecords_ = 0;
 	auto n = records_; //old records_;
 	records_ = new DList<Record>* [capacity_];
@@ -371,15 +387,18 @@ ChainingTable<TYPE>::ChainingTable(ChainingTable<TYPE>&& other){
 	this->capacity_ = other.capacity_;
 	this->records_ = other.records_;
 	this->numRecords_ = other.numRecords_;
-	this->size_ = other.size_;
+	/*this->size_ = other.size_;*/
 	this->maxLoadFactor_ = other.maxLoadFactor_;
 	this->currentLoadFactor_ = other.currentLoadFactor_;
 	other.records_ = nullptr;
 	other.numRecords_ = 0;
-	other.size_ = 0;
+	/*other.size_ = 0;*/
 	other.currentLoadFactor_ = 0;
 }
-
+//case 1: key exist, value is same, do nothing
+//                   value is nosame, update value
+//case 2: key not exist, check if the current maxloadFactor is max
+//                    if yes, expend, if no store to proper idx
 template <class TYPE>
 void ChainingTable<TYPE>::update(const string& key, const TYPE& value){
 	std::hash<std::string> hash;
@@ -388,7 +407,7 @@ void ChainingTable<TYPE>::update(const string& key, const TYPE& value){
 		if(currentLoadFactor_ >= maxLoadFactor_) expand();
 		records_[idx] = new DList<Record>();
 		records_[idx]->push_back(Record(key, value));
-		size_++;
+		/*size_++;*/
 		numRecords_++;
 		currentLoadFactor_ = (double)numRecords_/(double)capacity_;
 		return;
@@ -423,9 +442,11 @@ bool ChainingTable<TYPE>::remove(const string& key){
 			if(records_[idx]->isEmpty()){
 				delete records_[idx];
 				records_[idx] = nullptr;
-				size_--;
+				/*size_--;*/
 			}				
 			numRecords_--;
+			//change here *****
+			currentLoadFactor_ = (double)numRecords_ / (double)capacity_;
 			return true;
 		}
 	}
@@ -471,12 +492,12 @@ const ChainingTable<TYPE>& ChainingTable<TYPE>::operator=(ChainingTable<TYPE>&& 
 	this->capacity_ = other.capacity_;
 	this->records_ = other.records_;
 	this->numRecords_ = other.numRecords_;
-	this->size_ = other.size_;
+	/*this->size_ = other.size_;*/
 	this->maxLoadFactor_ = other.maxLoadFactor_;
 	this->currentLoadFactor_ = other.currentLoadFactor_;
 	other.records_ = nullptr;
 	other.numRecords_ = 0;
-	other.size_ = 0;
+	/*other.size_ = 0;*/
 	other.currentLoadFactor_ = 0;
 	return *this;
 
