@@ -256,27 +256,30 @@ public:
 
 #ifdef _DEBUG
 	void print(){
-		cout << endl << "**********************************" << endl;
-		cout << "Current list:" << endl
-			/*<< "Size: " << size_ << endl*/
-			<< "Records: " << numRecords_ << endl
-			<< "Capacity: " << capacity_ << endl
-			<< "currentLoadFactor: " << currentLoadFactor_ << endl
-			<< "maxLoadFactor: " << maxLoadFactor_ << endl;
-		for (size_t i = 0; i < capacity_; i++)
-		{
-			cout << i << ". ";
-			if(!records_[i]){
-				cout <<"Empty" << endl;
-				continue;
+		if(capacity_ == 0){
+			cout << "This table has 0 capacity" << endl;
+		}else{
+			cout << endl << "**********************************" << endl;
+			cout << "Current list:" << endl
+				/*<< "Size: " << size_ << endl*/
+				<< "Records: " << numRecords_ << endl
+				<< "Capacity: " << capacity_ << endl
+				<< "currentLoadFactor: " << currentLoadFactor_ << endl
+				<< "maxLoadFactor: " << maxLoadFactor_ << endl;
+			for (size_t i = 0; i < capacity_; i++)
+			{
+				cout << i << ". ";
+				if(!records_[i]){
+					cout <<"Empty" << endl;
+					continue;
+				}
+				for(auto& record : *records_[i]){
+					cout << "[" << record.key << ", " << record.value << "]->";
+				}
+				cout << "nil" << endl;
 			}
-			for(auto& record : *records_[i]){
-				cout << "[" << record.key << ", " << record.value << "]->";
-			}
-			cout << "nil" << endl;
+			cout << "**********************************" <<endl << endl;
 		}
-		cout << "**********************************" <<endl << endl;
-
 	}
 #endif //_DEBUG
 
@@ -360,6 +363,7 @@ void ChainingTable<TYPE>::expand(){
 
 template <class TYPE>
 ChainingTable<TYPE>::ChainingTable(int capacity,double maxLoadFactor): Table<TYPE>(){
+	if (capacity <= 0) throw string("Invalid capacity!!!");
 	capacity_ = capacity;
 	maxLoadFactor_ = maxLoadFactor;
 	records_ = new DList<Record>*[capacity_];
@@ -392,6 +396,7 @@ ChainingTable<TYPE>::ChainingTable(ChainingTable<TYPE>&& other){
 	this->currentLoadFactor_ = other.currentLoadFactor_;
 	other.records_ = nullptr;
 	other.numRecords_ = 0;
+	other.capacity_ = 0;
 	/*other.size_ = 0;*/
 	other.currentLoadFactor_ = 0;
 }
@@ -401,6 +406,7 @@ ChainingTable<TYPE>::ChainingTable(ChainingTable<TYPE>&& other){
 //                    if yes, expend, if no store to proper idx
 template <class TYPE>
 void ChainingTable<TYPE>::update(const string& key, const TYPE& value){
+	if(capacity_ <= 0) throw string("Table capacity invalid!! Table may be moved");
 	std::hash<std::string> hash;
 	size_t idx = hash(key) % capacity_;
 	if(!records_[idx]){//the key does not exist
@@ -431,6 +437,7 @@ void ChainingTable<TYPE>::update(const string& key, const TYPE& value){
 
 template <class TYPE>
 bool ChainingTable<TYPE>::remove(const string& key){
+	if(capacity_ <= 0) return false;
 	std::hash<std::string> hash;
 	size_t idx = hash(key) % capacity_;
 	for(auto itr = records_[idx]->begin(); itr != records_[idx]->end(); itr++){
@@ -455,6 +462,7 @@ bool ChainingTable<TYPE>::remove(const string& key){
 
 template <class TYPE>
 bool ChainingTable<TYPE>::find(const string& key, TYPE& value){
+	if(capacity_ <= 0) return false;
 	std::hash<std::string> hash;
 	size_t idx = hash(key) % capacity_;
 	for(auto& record: *records_[idx]){
@@ -478,7 +486,6 @@ const ChainingTable<TYPE>& ChainingTable<TYPE>::operator=(const ChainingTable<TY
 	}
 	*this = ChainingTable(other);
 	return *this;
-
 }
 template <class TYPE>
 const ChainingTable<TYPE>& ChainingTable<TYPE>::operator=(ChainingTable<TYPE>&& other){
@@ -499,6 +506,7 @@ const ChainingTable<TYPE>& ChainingTable<TYPE>::operator=(ChainingTable<TYPE>&& 
 	other.numRecords_ = 0;
 	/*other.size_ = 0;*/
 	other.currentLoadFactor_ = 0;
+	other.capacity_ = 0;
 	return *this;
 
 }
